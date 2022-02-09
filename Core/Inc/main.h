@@ -59,9 +59,7 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
-#define DISPLAY_STATUS_LED_PORT GPIOD
-#define DISPLAY_STATUS_LED_PIN  GPIO_PIN_12
-#define DISPLAY_DEV_ADDRESS     0x78
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
@@ -69,5 +67,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

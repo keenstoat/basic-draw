@@ -1,3 +1,11 @@
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __SSD1306_LIB_H
+#define __SSD1306_LIB_H
+
+//#ifdef __cplusplus
+// extern "C" {
+//#endif
+/*----------------------------------------------------------------------------*/
 
 
 #include "stm32f4xx_hal.h"
@@ -125,6 +133,18 @@
 #define DISABLE_CHARGE_PUMP 0x10
 #define ENABLE_CHARGE_PUMP 0x14
 
+
+
+
+/* Sets the display internal clock prescaler and frequency.
+ * the prescaler is mentioned as divide ration in the DS.
+ * This is a two byte command. Send command data as:
+ * data[1] = SET_CLOCK_FREQUENCY
+ * data[2] = FREQUENCY_DIVIDE_RATIO
+ */
+#define SET_CLOCK_FREQUENCY 0xD5
+#define FREQUENCY_DIVIDE_RATIO 0xF0
+
 /* =========== UTILITY FUNCTIONS =====================
  * ==========================================================
  */
@@ -139,8 +159,9 @@ class Display {
     uint8_t col = 0;
 
 #define NUMBER_CHAR_SIZE 6
-    uint8_t numberChars[11][NUMBER_CHAR_SIZE] = {
-      {0x0, 0x3E, 0x41, 0x41, 0x3E, 0x0}, // 0
+    const uint8_t numberChars[11][NUMBER_CHAR_SIZE] = {
+      //{0x0, 0x3E, 0x41, 0x41, 0x3E, 0x0}, // 0
+      {0x0, 0xFF, 0xFF, 0xFF, 0xFF, 0x0}, // 0
       {0x0, 0x00, 0x41, 0x7F, 0x40, 0x0}, // 1
       {0x0, 0x62, 0x51, 0x49, 0x46, 0x0}, // 2
       {0x0, 0x22, 0x41, 0x49, 0x36, 0x0}, // 3
@@ -153,7 +174,7 @@ class Display {
       {0x0, 0x00, 0x63, 0x63, 0x00, 0x0}  // :
     };
 
-    uint8_t font2[3][6] = {
+    const uint8_t font2[3][6] = {
       {0x70, 0x1E, 0x11, 0x1E, 0x70, 0x0}, // A
       {0x7F, 0x49, 0x49, 0x49, 0x36, 0x0}, // B
       {0x3E, 0x41, 0x41, 0x41, 0x22, 0x0} // C
@@ -162,23 +183,36 @@ class Display {
 
   public:
     Display(I2C_HandleTypeDef *, uint16_t);
-    void writeData(uint8_t [], uint8_t);
-    uint8_t readData();
-//    uint8_t readData(uint8_t, uint8_t);
+
+    void writeData(uint8_t [], uint16_t);
     void writeCommand(uint8_t);
     void writeCommand(uint8_t, uint8_t);
     void writeCommand(uint8_t, uint8_t, uint8_t);
-    void init();
-    void cleanAll();
+
+    void init(void);
     void setCoordinate(int, int);
-    void point(int, int);
-    void line(int, int, int, int);
-    void text(std::string, int, int);
+    void reDraw(void);
+
+    void clear(void);
+    void fill(void);
+
+    void drawBlock(int, int);
+
+
+    void cleanAll(void);
+//    void point(int, int);
+//    void line(int, int, int, int);
+//    void text(std::string, int, int);
 };
 
 
 
 
 
+/* ---------------------------------------------------------------------------*/
+//#ifdef __cplusplus
+//}
+//#endif
 
+#endif /* __SSD1306_LIB_H */
 
