@@ -11,7 +11,16 @@ Display::Display(I2C_HandleTypeDef * hi2c1, uint16_t devAddress) {
  * these handle the i/o through i2c
  */
 
+#define BUFFER_SIZE 8
 void Display::writeData(uint8_t data[], uint16_t size) {
+
+//  uint8_t buffer[BUFFER_SIZE + 1];
+//  buffer[0] = DATA_BYTE;
+//  for(int i = 0; i < BUFFER_SIZE; i++) {
+//    buffer[i + 1] = data[i];
+//  }
+
+
 
   uint8_t buffer[size + 1];
   buffer[0] = DATA_BYTE;
@@ -73,6 +82,8 @@ void Display::setCoordinate(int page, int col) {
 
 void Display::reDraw() {
   setCoordinate(0, 0);
+//  writeData(this->screen, 1024);
+
   uint8_t subArray[64];
   for(int page = 0; page < 16; page++) {
     for(int i = 0; i < 64; i++) {

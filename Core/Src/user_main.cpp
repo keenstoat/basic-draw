@@ -10,7 +10,7 @@ extern TIM_HandleTypeDef htim2;
 
 Display oled(&hi2c2, DISPLAY_DEV_ADDRESS);
 //int index = 0;
-int offset = 1;
+int offset = 2;
 int pos = 64;
 int adcVal = 0;
 
@@ -38,21 +38,23 @@ void user_main(void){
 
   while(1) {
 
-    adcVal = HAL_ADC_GetValue(&hadc1);
-
-    oled.drawBlock(pos, 0);
-    if(adcVal < 100) {
-      pos -= offset;
-      pos = pos < 0 ? 0 : pos;
-    } else if (adcVal > 138) {
-      pos += offset;
-      pos = pos > 120 ? 120 : pos;
-    }
-    oled.drawBlock(pos, 1);
+//    adcVal = HAL_ADC_GetValue(&hadc1);
+//
+//    oled.drawBlock(pos, 0);
+//    if(adcVal < 100) {
+//      pos -= offset;
+//      pos = pos < 0 ? 0 : pos;
+//    } else if (adcVal > 138) {
+//      pos += offset;
+//      pos = pos > 120 ? 120 : pos;
+//    }
+//    oled.drawBlock(pos, 1);
 
 //    printf("ADC:: %d\n", adcVal);
-
-    HAL_Delay(1);
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+    oled.reDraw();
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+//    HAL_Delay(1);
 
   }
 }
@@ -63,24 +65,24 @@ void user_main(void){
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-//  adcVal = HAL_ADC_GetValue(&hadc1);
-//
-//  oled.drawBlock(pos, 0);
-//  if(adcVal < 100) {
-//    pos -= offset;
-//    pos = pos < 0 ? 0 : pos;
-//  } else if (adcVal > 138) {
-//    pos += offset;
-//    pos = pos > 120 ? 120 : pos;
-//  }
-//  oled.drawBlock(pos, 1);
+  adcVal = HAL_ADC_GetValue(&hadc1);
+
+  oled.drawBlock(pos, 0);
+  if(adcVal < 100) {
+    pos -= offset;
+    pos = pos < 0 ? 0 : pos;
+  } else if (adcVal > 138) {
+    pos += offset;
+    pos = pos > 120 ? 120 : pos;
+  }
+  oled.drawBlock(pos, 1);
 
 
 
 
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-  oled.reDraw();
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+//  oled.reDraw();
+//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 
 //  printf("POS %d\n", pos);
 }
