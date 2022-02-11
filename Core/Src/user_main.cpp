@@ -9,9 +9,8 @@ extern TIM_HandleTypeDef htim2;
 
 Display oled(&hi2c2, DISPLAY_DEV_ADDRESS);
 
-int step = 3;
-int posX = 60;
-int posY = 28;
+int posX = 0;
+int posY = 0;
 int adcValY = 0;
 int adcValX = 0;
 uint8_t adcValueArray[2] = {0 ,0};
@@ -46,61 +45,77 @@ void user_main(void){
   }
 }
 
+uint8_t getSteps(int adcValue) {
+
+  // get abs()
+  adcValue = adcValue < 0 ? -adcValue : adcValue;
+  if(adcValue >= 80) {
+    return 5;
+  }else if(adcValue >= 60) {
+    return 4;
+  } else if(adcValue >= 40) {
+    return 3;
+  } else if(adcValue >= 10) {
+    return 2;
+  } else {
+    return 1;
+  }
+}
 
 void calculateBallPosition(void) {
 
-  // joystick values:
-  // Y: [206, 129, 45]
-  // X: [206, 129, 45]
+#define ADC_CENTER 130
+#define CENTER_THOLD 3
 
-  adcValY = adcValueArray[0];
-  adcValX = adcValueArray[1];
+  // joystick value range:
+  // small - Y and X: [45, 130, 206]
+  // large - Y and X: [00, 130, 255]
+
+  // with offset correction (substract ADC_CENTER):
+  // Y and X: [-130, 0, 125]
+
+//  printf("%d - %d\n", adcValueArray[1], adcValueArray[0]);
+
+  // normalize the ADC value to take 0 as center of joystick
+  adcValY = adcValueArray[0] - ADC_CENTER;
+  adcValX = adcValueArray[1] - ADC_CENTER;
+  printf("%d - %d\n", adcValX, adcValY);
 
   oled.drawBlock(posX, posY, CLEAR);
 
-  if(adcValX < ADC_CENTER - 30) {
-    posX -= step;
-    posX = posX < 0 ? 0 : posX;
-  } else if (adcValX > ADC_CENTER + 10) {
-    posX += step;
+  // The joystick has X movement inverted
+  // so calculation is inverted
+  if(adcValX < -CENTER_THOLD) { // joystick moves right
+    posX += getSteps(adcValX);
     posX = posX > 120 ? 120 : posX;
+  } else if (adcValX > CENTER_THOLD) { // joystick moves left
+    posX -= getSteps(adcValX);
+    posX = posX < 0 ? 0 : posX;
   }
 
+  // The joystick has Y movement normal but...
   // In display, Y coordinates increase down
   // so if ADC Y value goes up, the ball should go down
-  if(adcValY > ADC_CENTER + 10 ) {
-    posY -= step;
+  if(adcValY > CENTER_THOLD ) { // joystick moves up
+    posY -= getSteps(adcValY);
     posY = posY < 0 ? 0 : posY;
-  } else if (adcValY < ADC_CENTER - 30) {
-    posY += step;
+  } else if (adcValY < -CENTER_THOLD) {
+    posY += getSteps(adcValY);
     posY = posY > 56 ? 56 : posY;
   }
   oled.drawBlock(posX, posY, FILL);
-  printf("%d - %d\n", posX, posY);
+//  printf("%d - %d\n", posX, posY);
 
 }
 
 
-
-
-
-
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
   // toggles RED LED
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-
+//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
   oled.reDraw();
+//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-
-
-
-
-
-//  printf("POS %d\n", pos);
 }
 
 
