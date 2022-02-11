@@ -202,7 +202,9 @@ class Display {
     void clear(void);
     void fill(void);
 
-    void drawBlock(int, int, int);
+    void drawBlock(int, int, int, uint8_t []);
+    void drawSolid(int, int, int);
+    void drawHollow(int, int, int);
 
 //    void point(int, int);
 //    void line(int, int, int, int);
