@@ -11,7 +11,12 @@
 #include "stm32f4xx_hal.h"
 #include <string>
 
-// SSD1306 commands definitions
+// SSD1306 characteristics and commands definitions
+
+#define COLS 128
+#define PAGES 8
+
+
 
 /* =========== CONTROL BYTE =============================
  * ======================================================
@@ -196,7 +201,7 @@ class Display {
     void clear(void);
     void fill(void);
 
-    void drawBlock(int, int);
+    void drawBlock(int, int, int);
 
 
     void cleanAll(void);

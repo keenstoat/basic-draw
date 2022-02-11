@@ -113,13 +113,35 @@ void Display::fill() {
 }
 
 
-void Display::drawBlock(int col, int fill) {
+void Display::drawBlock(int x, int y, int color) {
 
-//  uint8_t buffer[8] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
-  col = col > 120 ? 120 : col;
-  for(uint16_t i = col; i < col+8; i++) {
-    this->screen[i] = fill > 0 ? 0xFF : 0x00;
+  uint8_t block[8] = {0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0x7E,0x3C};
+
+  // limit coordinates to fit block in screen
+  if(x < 0 || x > 120) {
+    return;
   }
+  if(y < 0 || y > 56) {
+    return ;
+  }
+
+  int page = y / 8;
+  int lowerPageBits = y % 8;
+  int upperPageBits = 8 - lowerPageBits;
+
+  // set the upper page bits
+  int initPos = page * COLS + x;
+  for(int i = 0; i < 8; i++) {
+    this->screen[initPos++] = color > 0 ? block[i] << lowerPageBits : 0x00;
+  }
+  // set the lower page bits
+  if(lowerPageBits > 0) {
+    initPos = (page + 1) * COLS + x;
+    for(int i = 0; i < 8; i++) {
+      this->screen[initPos++] = color > 0 ? block[i] >> upperPageBits : 0x00;
+    }
+  }
+
 }
 
 

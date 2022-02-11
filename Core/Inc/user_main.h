@@ -11,9 +11,16 @@
 #define DISPLAY_STATUS_LED_PIN  GPIO_PIN_12
 #define DISPLAY_DEV_ADDRESS     0x78
 
+#define ADC_MAX 206
+#define ADC_CENTER 130
+#define ADC_MIN 46
+
+#define FILL 1
+#define CLEAR 0
+
 void user_main(void);
 
-
+void calculateBallXY(void);
 
 
 
