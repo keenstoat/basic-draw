@@ -14,7 +14,8 @@ int posX = 60;
 int posY = 28;
 int adcValY = 0;
 int adcValX = 0;
-uint32_t adcValueArray[2] = {0 ,0};
+uint8_t adcValueArray[2] = {0 ,0};
+
 
 void user_main(void){
 
@@ -22,12 +23,11 @@ void user_main(void){
     HAL_GPIO_WritePin(DISPLAY_STATUS_LED_PORT, DISPLAY_STATUS_LED_PIN, GPIO_PIN_SET);
   }
   oled.init();
-  oled.cleanAll();
-//  oled.clear();
-//  oled.reDraw();
+  oled.clear();
+  oled.reDraw();
 
   HAL_TIM_Base_Start_IT(&htim2);
-  if(HAL_ADC_Start_DMA(&hadc1,  adcValueArray, 2) == HAL_OK) {
+  if(HAL_ADC_Start_DMA(&hadc1, (uint32_t *) adcValueArray, 2) == HAL_OK) {
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
   }
 
@@ -38,7 +38,7 @@ void user_main(void){
     // toggles ORANGE LED
 //    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 
-    calculateBallXY();
+    calculateBallPosition();
 
 //    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
     HAL_Delay(1);
@@ -47,7 +47,7 @@ void user_main(void){
 }
 
 
-void calculateBallXY(void) {
+void calculateBallPosition(void) {
 
   // joystick values:
   // Y: [206, 129, 45]
@@ -68,7 +68,7 @@ void calculateBallXY(void) {
 
   // In display, Y coordinates increase down
   // so if ADC Y value goes up, the ball should go down
-  if(adcValY > ADC_CENTER + 10  ) {
+  if(adcValY > ADC_CENTER + 10 ) {
     posY -= step;
     posY = posY < 0 ? 0 : posY;
   } else if (adcValY < ADC_CENTER - 30) {

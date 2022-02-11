@@ -11,23 +11,23 @@ Display::Display(I2C_HandleTypeDef * hi2c1, uint16_t devAddress) {
  * these handle the i/o through i2c
  */
 
-#define BUFFER_SIZE 8
+#define BUFFER_SIZE 64
 void Display::writeData(uint8_t data[], uint16_t size) {
 
-//  uint8_t buffer[BUFFER_SIZE + 1];
-//  buffer[0] = DATA_BYTE;
-//  for(int i = 0; i < BUFFER_SIZE; i++) {
-//    buffer[i + 1] = data[i];
-//  }
-
-
-
-  uint8_t buffer[size + 1];
+  uint8_t buffer[BUFFER_SIZE + 1];
   buffer[0] = DATA_BYTE;
-  for(int i = 0; i < size; i++) {
-    buffer[i + 1] = data[i];
+
+  uint16_t dataIndex = 0;
+  uint16_t bufferSize = 0;
+  while(size > 0) {
+    bufferSize = size > BUFFER_SIZE ? BUFFER_SIZE : size;
+
+    for(int i = 0; i < bufferSize; i++) {
+      buffer[i + 1] = data[dataIndex++];
+    }
+    HAL_I2C_Master_Transmit(i2cHandle, deviceAddress, buffer, bufferSize + 1, 10);
+    size -= bufferSize;
   }
-  HAL_I2C_Master_Transmit(i2cHandle, deviceAddress, buffer, size + 1, 10);
 }
 
 void Display::writeCommand(uint8_t commandName) {
@@ -82,15 +82,7 @@ void Display::setCoordinate(int page, int col) {
 
 void Display::reDraw() {
   setCoordinate(0, 0);
-//  writeData(this->screen, 1024);
-
-  uint8_t subArray[64];
-  for(int page = 0; page < 16; page++) {
-    for(int i = 0; i < 64; i++) {
-        subArray[i] = this->screen[page*64 + i];
-    }
-    writeData(subArray, 64);
-  }
+  writeData(this->screen, 1024);
 }
 
 
@@ -112,32 +104,32 @@ void Display::fill() {
   }
 }
 
-
+#define BLOCK_SIZE 8
 void Display::drawBlock(int x, int y, int color) {
 
-  uint8_t block[8] = {0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0x7E,0x3C};
+  uint8_t block[BLOCK_SIZE] = {0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0x7E,0x3C};
 
   // limit coordinates to fit block in screen
-  if(x < 0 || x > 120) {
+  if(x < 0 || x > COLS - BLOCK_SIZE) {
     return;
   }
-  if(y < 0 || y > 56) {
+  if(y < 0 || y > ROWS - BLOCK_SIZE) {
     return ;
   }
 
-  int page = y / 8;
-  int lowerPageBits = y % 8;
-  int upperPageBits = 8 - lowerPageBits;
+  int page = y / BLOCK_SIZE;
+  int lowerPageBits = y % BLOCK_SIZE;
+  int upperPageBits = BLOCK_SIZE - lowerPageBits;
 
   // set the upper page bits
   int initPos = page * COLS + x;
-  for(int i = 0; i < 8; i++) {
+  for(int i = 0; i < BLOCK_SIZE; i++) {
     this->screen[initPos++] = color > 0 ? block[i] << lowerPageBits : 0x00;
   }
   // set the lower page bits
   if(lowerPageBits > 0) {
     initPos = (page + 1) * COLS + x;
-    for(int i = 0; i < 8; i++) {
+    for(int i = 0; i < BLOCK_SIZE; i++) {
       this->screen[initPos++] = color > 0 ? block[i] >> upperPageBits : 0x00;
     }
   }
@@ -156,16 +148,6 @@ void Display::drawBlock(int x, int y, int color) {
 //}
 
 
-
-//
-void Display::cleanAll() {
-  this->setCoordinate(0, 0);
-  uint8_t buffer[8] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-  for(uint16_t i = 0; i < 128; i++) {
-    writeData(buffer, 8);
-//    this->screen[i] = 0x00;
-  }
-}
 
 //uint8_t Display::readData() {
 //  return this->screen[(this->page)*128 + this->col];

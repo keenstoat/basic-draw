@@ -20,7 +20,7 @@
 
 void user_main(void);
 
-void calculateBallXY(void);
+void calculateBallPosition(void);
 
 
 

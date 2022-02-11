@@ -14,6 +14,7 @@
 // SSD1306 characteristics and commands definitions
 
 #define COLS 128
+#define ROWS 64
 #define PAGES 8
 
 
@@ -203,8 +204,6 @@ class Display {
 
     void drawBlock(int, int, int);
 
-
-    void cleanAll(void);
 //    void point(int, int);
 //    void line(int, int, int, int);
 //    void text(std::string, int, int);

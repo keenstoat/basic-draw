@@ -1,7 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-2\#ChannelRegularConversion=ADC_CHANNEL_0
 ADC1.Channel-3\#ChannelRegularConversion=ADC_CHANNEL_1
-ADC1.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV8
+ADC1.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV4
 ADC1.ContinuousConvMode=ENABLE
 ADC1.DMAContinuousRequests=ENABLE
 ADC1.EOCSelection=ADC_EOC_SEQ_CONV
@@ -18,10 +18,10 @@ ADC1.master=1
 Dma.ADC1.0.Direction=DMA_PERIPH_TO_MEMORY
 Dma.ADC1.0.FIFOMode=DMA_FIFOMODE_DISABLE
 Dma.ADC1.0.Instance=DMA2_Stream0
-Dma.ADC1.0.MemDataAlignment=DMA_MDATAALIGN_WORD
+Dma.ADC1.0.MemDataAlignment=DMA_MDATAALIGN_BYTE
 Dma.ADC1.0.MemInc=DMA_MINC_ENABLE
 Dma.ADC1.0.Mode=DMA_CIRCULAR
-Dma.ADC1.0.PeriphDataAlignment=DMA_PDATAALIGN_WORD
+Dma.ADC1.0.PeriphDataAlignment=DMA_PDATAALIGN_BYTE
 Dma.ADC1.0.PeriphInc=DMA_PINC_DISABLE
 Dma.ADC1.0.Priority=DMA_PRIORITY_LOW
 Dma.ADC1.0.RequestParameters=Instance,Direction,PeriphInc,MemInc,PeriphDataAlignment,MemDataAlignment,Mode,Priority,FIFOMode
@@ -172,4 +172,4 @@ VP_SYS_VS_Systick.Signal=SYS_VS_Systick
 VP_TIM2_VS_ClockSourceINT.Mode=Internal
 VP_TIM2_VS_ClockSourceINT.Signal=TIM2_VS_ClockSourceINT
 board=custom
-isbadioc=true
+isbadioc=false
