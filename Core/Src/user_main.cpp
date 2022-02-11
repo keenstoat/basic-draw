@@ -14,10 +14,12 @@ int posY = 0;
 int adcValY = 0;
 int adcValX = 0;
 uint8_t adcValueArray[2] = {0 ,0};
+int cursorMode = NONE;
 
 
 void user_main(void){
 
+  // IF display is ready for I2C - LED GREEN ON
   if(HAL_I2C_IsDeviceReady(&hi2c2, DISPLAY_DEV_ADDRESS, 10, 10) == HAL_OK){
     HAL_GPIO_WritePin(DISPLAY_STATUS_LED_PORT, DISPLAY_STATUS_LED_PIN, GPIO_PIN_SET);
   }
@@ -26,11 +28,12 @@ void user_main(void){
   oled.reDraw();
 
   HAL_TIM_Base_Start_IT(&htim2);
+  // IF ADC is started ok - LED BLUE ON
   if(HAL_ADC_Start_DMA(&hadc1, (uint32_t *) adcValueArray, 2) == HAL_OK) {
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
   }
 
-  oled.drawBlock(posX, posY, FILL);
+  oled.drawBlock(posX, posY, 0);
 
   while(1) {
 
@@ -79,10 +82,14 @@ void calculateBallPosition(void) {
   // normalize the ADC value to take 0 as center of joystick
   adcValY = adcValueArray[0] - ADC_CENTER;
   adcValX = adcValueArray[1] - ADC_CENTER;
-  printf("%d - %d\n", adcValX, adcValY);
+//  printf("%d - %d\n", adcValX, adcValY);
 
-  oled.drawBlock(posX, posY, CLEAR);
-
+  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_RESET) {
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+    oled.drawBlock(posX, posY, 0);
+  } else {
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+  }
   // The joystick has X movement inverted
   // so calculation is inverted
   if(adcValX < -CENTER_THOLD) { // joystick moves right
@@ -116,6 +123,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   oled.reDraw();
 //  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  // ORANGE LED
+  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+  cursorMode = cursorMode != NONE ? FILL : NONE;
 }
 
 

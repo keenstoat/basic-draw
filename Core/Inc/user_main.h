@@ -11,10 +11,15 @@
 #define DISPLAY_STATUS_LED_PIN  GPIO_PIN_12
 #define DISPLAY_DEV_ADDRESS     0x78
 
+//#define FILL 1
+//#define CLEAR 0
 
-
-#define FILL 1
-#define CLEAR 0
+typedef enum
+{
+  CLEAR = 0,
+  FILL = 1,
+  NONE = -1
+} CursorMode;
 
 void user_main(void);
 

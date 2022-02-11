@@ -124,13 +124,15 @@ void Display::drawBlock(int x, int y, int color) {
   // set the upper page bits
   int initPos = page * COLS + x;
   for(int i = 0; i < BLOCK_SIZE; i++) {
-    this->screen[initPos++] = color > 0 ? block[i] << lowerPageBits : 0x00;
+    this->screen[initPos] = color > 0 ? this->screen[initPos] | (block[i] << lowerPageBits) : 0x00;
+    initPos++;
   }
   // set the lower page bits
   if(lowerPageBits > 0) {
     initPos = (page + 1) * COLS + x;
     for(int i = 0; i < BLOCK_SIZE; i++) {
-      this->screen[initPos++] = color > 0 ? block[i] >> upperPageBits : 0x00;
+      this->screen[initPos] = color > 0 ? this->screen[initPos] | (block[i] >> upperPageBits) : 0x00;
+      initPos++;
     }
   }
 
