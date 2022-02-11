@@ -18,8 +18,6 @@ uint32_t adcValueArray[2] = {0 ,0};
 
 void user_main(void){
 
-
-
   if(HAL_I2C_IsDeviceReady(&hi2c2, DISPLAY_DEV_ADDRESS, 10, 10) == HAL_OK){
     HAL_GPIO_WritePin(DISPLAY_STATUS_LED_PORT, DISPLAY_STATUS_LED_PIN, GPIO_PIN_SET);
   }
@@ -29,8 +27,8 @@ void user_main(void){
 //  oled.reDraw();
 
   HAL_TIM_Base_Start_IT(&htim2);
-  if(HAL_ADC_Start_DMA(&hadc1, adcValueArray, 2) != HAL_OK) {
-    Error_Handler();
+  if(HAL_ADC_Start_DMA(&hadc1,  adcValueArray, 2) == HAL_OK) {
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
   }
 
   oled.drawBlock(posX, posY, FILL);
@@ -77,7 +75,7 @@ void calculateBallXY(void) {
     posY += step;
     posY = posY > 56 ? 56 : posY;
   }
-  oled.drawBlock(posX, posY, 1);
+  oled.drawBlock(posX, posY, FILL);
   printf("%d - %d\n", posX, posY);
 
 }
