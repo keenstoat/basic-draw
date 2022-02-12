@@ -14,19 +14,18 @@ int posX = 0;
 int posY = 0;
 int adcValY = 0;
 int adcValX = 0;
-uint8_t adcValueArray[2] = {0 ,0};
+uint8_t adcValueArray[2] = { 0, 0 };
 
+void user_main(void) {
 
-void user_main(void){
-
-  // IF display is ready - LED GREEN ON
-  if(HAL_I2C_IsDeviceReady(&hi2c2, DISPLAY_DEV_ADDRESS, 10, 10) == HAL_OK){
-    HAL_GPIO_WritePin(DISPLAY_STATUS_LED_PORT, DISPLAY_STATUS_LED_PIN, GPIO_PIN_SET);
+  // IF display is ready - LED ORANGE ON
+  if (HAL_I2C_IsDeviceReady(&hi2c2, DISPLAY_DEV_ADDRESS, 10, 10) == HAL_OK) {
+    HAL_GPIO_WritePin(ORANGE_LED_PORT, ORANGE_LED_PIN, ON);
   }
 
-  // IF ADC is started ok - LED BLUE ON
-  if(HAL_ADC_Start_DMA(&hadc1, (uint32_t *) adcValueArray, 2) == HAL_OK) {
-    HAL_GPIO_WritePin(ADC_STATUS_LED_PORT, ADC_STATUS_LED_PIN, GPIO_PIN_SET);
+  // IF ADC is started ok - LED GREEN ON
+  if (HAL_ADC_Start_DMA(&hadc1, (uint32_t*) adcValueArray, 2) == HAL_OK) {
+    HAL_GPIO_WritePin(GREEN_LED_PORT, GREEN_LED_PIN, ON);
   }
 
   // start the screen refresh cycle
@@ -38,13 +37,10 @@ void user_main(void){
   oled.reDraw();
   oled.drawHollow(posX, posY, FILL);
 
-  while(1) {
+  while (1) {
 
-    // toggles ORANGE LED
-    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
     moveCursor();
-    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-    HAL_Delay(1);
+    HAL_Delay(2);
 
   }
 }
@@ -53,13 +49,13 @@ uint8_t getVelocity(int8_t adcValue) {
 
   // get abs()
   adcValue = adcValue < 0 ? -adcValue : adcValue;
-  if(adcValue >= 80) {
+  if (adcValue >= 80) {
     return 7;
-  }else if(adcValue >= 60) {
+  } else if (adcValue >= 60) {
     return 4;
-  } else if(adcValue >= 40) {
+  } else if (adcValue >= 40) {
     return 3;
-  } else if(adcValue >= 10) {
+  } else if (adcValue >= 10) {
     return 2;
   } else {
     return 1;
@@ -79,19 +75,19 @@ void moveCursor(void) {
   adcValX = adcValueArray[1] - ADC_CENTER;
 
   // clear the current cursor if moving around. fill it if painting
-  if(HAL_GPIO_ReadPin(PAINT_STATUS_INPUT_PORT, PAINT_STATUS_INPUT_PIN) == OFF) {
+  if (HAL_GPIO_ReadPin(PAINT_STATUS_INPUT_PORT, PAINT_STATUS_INPUT_PIN) == OFF) {
 
-    HAL_GPIO_WritePin(PAINT_STATUS_LED_PORT, PAINT_STATUS_LED_PIN, OFF);
+    HAL_GPIO_WritePin(BLUE_LED_PORT, BLUE_LED_PIN, OFF);
     oled.drawSolid(posX, posY, CLEAR);
   } else {
 
-    HAL_GPIO_WritePin(PAINT_STATUS_LED_PORT, PAINT_STATUS_LED_PIN, ON);
+    HAL_GPIO_WritePin(BLUE_LED_PORT, BLUE_LED_PIN, ON);
     oled.drawSolid(posX, posY, FILL);
   }
 
   // The joystick has X movement inverted
   // so calculation is inverted
-  if(adcValX < -CENTER_THOLD) { // joystick moves right
+  if (adcValX < -CENTER_THOLD) { // joystick moves right
     posX += getVelocity(adcValX);
     posX = posX > 120 ? 120 : posX;
   } else if (adcValX > CENTER_THOLD) { // joystick moves left
@@ -102,7 +98,7 @@ void moveCursor(void) {
   // The joystick has Y movement normal but...
   // In display, Y coordinates increase down
   // so if ADC Y value goes up, the ball should go down
-  if(adcValY > CENTER_THOLD ) { // joystick moves up
+  if (adcValY > CENTER_THOLD) { // joystick moves up
     posY -= getVelocity(adcValY);
     posY = posY < 0 ? 0 : posY;
   } else if (adcValY < -CENTER_THOLD) {
@@ -114,17 +110,7 @@ void moveCursor(void) {
 
 }
 
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  // toggles RED LED
-//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   oled.reDraw();
-//  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-
 }
-
-
-
-
 
