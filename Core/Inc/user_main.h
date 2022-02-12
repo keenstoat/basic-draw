@@ -33,7 +33,7 @@
 #define CLEAR 0
 
 #define ADC_CENTER 130
-#define CENTER_THOLD 4
+#define CENTER_THOLD 10
 
 void user_main(void);
 
