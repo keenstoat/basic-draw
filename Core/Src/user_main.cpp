@@ -35,12 +35,12 @@ void user_main(void) {
   oled.init();
   oled.clear();
   oled.reDraw();
-  oled.drawHollow(posX, posY, FILL);
+  oled.drawCursor(posX, posY, FILL);
 
   while (1) {
 
     moveCursor();
-    HAL_Delay(2);
+    HAL_Delay(1);
 
   }
 }
@@ -53,9 +53,7 @@ uint8_t getVelocity(int8_t adcValue) {
     return 7;
   } else if (adcValue >= 60) {
     return 4;
-  } else if (adcValue >= 40) {
-    return 3;
-  } else if (adcValue >= 10) {
+  } else if (adcValue >= 30) {
     return 2;
   } else {
     return 1;
@@ -74,16 +72,22 @@ void moveCursor(void) {
   adcValY = adcValueArray[0] - ADC_CENTER;
   adcValX = adcValueArray[1] - ADC_CENTER;
 
-  // clear the current cursor if moving around. fill it if painting
-  if (HAL_GPIO_ReadPin(PAINT_STATUS_INPUT_PORT, PAINT_STATUS_INPUT_PIN) == OFF) {
-
-    HAL_GPIO_WritePin(BLUE_LED_PORT, BLUE_LED_PIN, OFF);
-    oled.drawSolid(posX, posY, CLEAR);
-  } else {
+  HAL_GPIO_WritePin(BLUE_LED_PORT, BLUE_LED_PIN, OFF);
+  HAL_GPIO_WritePin(RED_LED_PORT, RED_LED_PIN, OFF);
+  // clear the current cursor if not painting
+  if (HAL_GPIO_ReadPin(PAINT_STATUS_INPUT_PORT, PAINT_STATUS_INPUT_PIN)) {
 
     HAL_GPIO_WritePin(BLUE_LED_PORT, BLUE_LED_PIN, ON);
     oled.drawSolid(posX, posY, FILL);
+
+  } else if (HAL_GPIO_ReadPin(ERASE_STATUS_INPUT_PORT, ERASE_STATUS_INPUT_PIN)) {
+
+    HAL_GPIO_WritePin(RED_LED_PORT, RED_LED_PIN, ON);
+    oled.drawSolid(posX, posY, CLEAR);
+
   }
+
+  oled.drawCursor(posX, posY, CLEAR);
 
   // The joystick has X movement inverted
   // so calculation is inverted
@@ -105,7 +109,7 @@ void moveCursor(void) {
     posY += getVelocity(adcValY);
     posY = posY > 56 ? 56 : posY;
   }
-  oled.drawHollow(posX, posY, FILL);
+  oled.drawCursor(posX, posY, FILL);
 //  printf("%d - %d\n", posX, posY);
 
 }

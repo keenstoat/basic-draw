@@ -161,6 +161,7 @@ class Display {
     I2C_HandleTypeDef * i2cHandle;
     uint16_t deviceAddress;
     uint8_t screen[1024];
+    uint8_t cscreen[1024];
     uint8_t page = 0;
     uint8_t col = 0;
 
@@ -202,9 +203,9 @@ class Display {
     void clear(void);
     void fill(void);
 
-    void drawBlock(int, int, int, uint8_t []);
+    void drawBlock(int, int, int, uint8_t [], uint8_t []);
     void drawSolid(int, int, int);
-    void drawHollow(int, int, int);
+    void drawCursor(int, int, int);
 
 //    void point(int, int);
 //    void line(int, int, int, int);

@@ -82,7 +82,18 @@ void Display::setCoordinate(int page, int col) {
 
 void Display::reDraw() {
   setCoordinate(0, 0);
-  writeData(this->screen, 1024);
+
+  uint8_t tmpScreen[1024];
+  for(int i = 0; i < 1024; i++) {
+    if(this->cscreen[i] == 0) {
+      tmpScreen[i] = this->screen[i];
+    } else if(this->screen[i] == 0) {
+      tmpScreen[i] = this->cscreen[i];
+    } else {
+      tmpScreen[i] = (~(this->cscreen[i]) & this->screen[i]);
+    }
+  }
+  writeData(tmpScreen, 1024);
 }
 
 
@@ -105,7 +116,7 @@ void Display::fill() {
 }
 
 #define BLOCK_SIZE 8
-void Display::drawBlock(int x, int y, int color, uint8_t * block) {
+void Display::drawBlock(int x, int y, int color, uint8_t block[], uint8_t screen[]) {
 
   // limit coordinates to fit block in screen
   if(x < 0 || x > COLS - BLOCK_SIZE) {
@@ -122,18 +133,18 @@ void Display::drawBlock(int x, int y, int color, uint8_t * block) {
   // set the upper page bits
   int initPos = page * COLS + x;
   for(int i = 0; i < BLOCK_SIZE; i++) {
-    this->screen[initPos] = color > 0 ?
-        this->screen[initPos] | (block[i] << lowerPageBits) :
-        this->screen[initPos] & ~(block[i] << lowerPageBits);
+    screen[initPos] = color > 0 ?
+        screen[initPos] | (block[i] << lowerPageBits) :
+        screen[initPos] & ~(block[i] << lowerPageBits);
     initPos++;
   }
   // set the lower page bits
   if(lowerPageBits > 0) {
     initPos = (page + 1) * COLS + x;
     for(int i = 0; i < BLOCK_SIZE; i++) {
-      this->screen[initPos] = color > 0 ?
-          this->screen[initPos] | (block[i] >> upperPageBits) :
-          this->screen[initPos] & ~(block[i] >> upperPageBits);
+      screen[initPos] = color > 0 ?
+          screen[initPos] | (block[i] >> upperPageBits) :
+          screen[initPos] & ~(block[i] >> upperPageBits);
       initPos++;
     }
   }
@@ -143,13 +154,13 @@ void Display::drawBlock(int x, int y, int color, uint8_t * block) {
 void Display::drawSolid(int x, int y, int color) {
 
   uint8_t block[BLOCK_SIZE] = {0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0x7E,0x3C};
-  this->drawBlock(x, y, color, block);
+  this->drawBlock(x, y, color, block, this->screen);
 }
 
-void Display::drawHollow(int x, int y, int color) {
+void Display::drawCursor(int x, int y, int color) {
 
-  uint8_t block[BLOCK_SIZE] = {0x3C,0x66,0xC3,0x81,0x81,0xC3,0x66,0x3C};
-  this->drawBlock(x, y, color, block);
+  uint8_t cBlock[BLOCK_SIZE] = {0x3C,0x66,0xC3,0x81,0x81,0xC3,0x66,0x3C};
+  this->drawBlock(x, y, color, cBlock, this->cscreen);
 }
 
 
